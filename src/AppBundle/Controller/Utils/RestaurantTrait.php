@@ -21,6 +21,7 @@ use AppBundle\Form\ProductOptionType;
 use AppBundle\Form\ProductType;
 use AppBundle\Form\RestaurantType;
 use AppBundle\Form\Restaurant\DepositRefundSettingsType;
+use AppBundle\Form\Sylius\Promotion\OfferDeliveryType;
 use AppBundle\Service\SettingsManager;
 use AppBundle\Sylius\Order\AdjustmentInterface;
 use AppBundle\Utils\MenuEditor;
@@ -1041,6 +1042,86 @@ trait RestaurantTrait
         }
 
         return $this->render('@App/restaurant/deposit_refund.html.twig', $this->withRoutes([
+            'layout' => $request->attributes->get('layout'),
+            'restaurant' => $restaurant,
+            'form' => $form->createView(),
+        ]));
+    }
+
+    public function restaurantPromotionsAction($id, Request $request)
+    {
+        $restaurant = $this->getDoctrine()
+            ->getRepository(LocalBusiness::class)
+            ->find($id);
+
+        $this->accessControl($restaurant);
+
+        // $form = $this->createForm(DepositRefundSettingsType::class, $restaurant);
+
+        // $form->handleRequest($request);
+        // if ($form->isSubmitted() && $form->isValid()) {
+
+        //     $this->getDoctrine()->getManagerForClass(LocalBusiness::class)->flush();
+
+        //     $this->addFlash(
+        //         'notice',
+        //         $this->get('translator')->trans('global.changesSaved')
+        //     );
+
+        //     $routes = $this->getRestaurantRoutes();
+
+        //     return $this->redirectToRoute($routes['deposit_refund'], ['id' => $id]);
+        // }
+
+        return $this->render('@App/restaurant/promotions.html.twig', $this->withRoutes([
+            'layout' => $request->attributes->get('layout'),
+            'restaurant' => $restaurant,
+            // 'form' => $form->createView(),
+        ]));
+    }
+
+    public function newRestaurantPromotionAction($id, Request $request)
+    {
+        $restaurant = $this->getDoctrine()
+            ->getRepository(LocalBusiness::class)
+            ->find($id);
+
+        $this->accessControl($restaurant);
+
+        $type = $request->query->get('type');
+
+        if ($type === 'offer_delivery') {
+
+            $form = $this->createForm(OfferDeliveryType::class, null, [
+                'local_business' => $restaurant
+            ]);
+
+            $form->handleRequest($request);
+            if ($form->isSubmitted() && $form->isValid()) {
+
+                // $couponCode = $form->get('couponCode')->getData();
+                // $name = $form->get('name')->getData();
+
+                // var_dump($couponCode);
+
+
+                exit;
+
+                // $this->getDoctrine()->getManagerForClass(LocalBusiness::class)->flush();
+
+                // $this->addFlash(
+                //     'notice',
+                //     $this->get('translator')->trans('global.changesSaved')
+                // );
+
+                // $routes = $this->getRestaurantRoutes();
+
+                // return $this->redirectToRoute($routes['deposit_refund'], ['id' => $id]);
+            }
+
+        }
+
+        return $this->render('@App/restaurant/promotion.html.twig', $this->withRoutes([
             'layout' => $request->attributes->get('layout'),
             'restaurant' => $restaurant,
             'form' => $form->createView(),
