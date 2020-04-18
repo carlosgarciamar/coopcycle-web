@@ -1,7 +1,5 @@
 {% extends '@App/restaurant/layout.html.twig' %}
 
-{# {% form_theme form '@App/form/product.html.twig' %} #}
-
 {% block breadcrumb %}
   <li><a href="{{ path(restaurants_route) }}">{% trans %}adminDashboard.restaurants.title{% endtrans %}</a></li>
   <li><a href="{{ path(restaurant_route, { id: restaurant.id }) }}">{{ restaurant.name }}</a></li>
@@ -10,7 +8,26 @@
 {% endblock %}
 
 {% block content %}
-PROMOTIONS
+<table class="table">
+  <thead>
+    <th>{{ 'basics.name'|trans }}</th>
+    <th>{{ 'promotion.coupon_code'|trans }}</th>
+  </thead>
+  <tbody>
+    {% for promotion in promotions %}
+    <tr>
+      <td>{{ promotion.name }}</td>
+      <td>
+        {% if promotion.isCouponBased() %}
+          {% for coupon in promotion.coupons %}
+            <span>{{ coupon.code }}</span>
+          {% endfor %}
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
 
 {% endblock %}
 

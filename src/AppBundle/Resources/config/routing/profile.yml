@@ -277,6 +277,8 @@ profile_restaurant_new_promotion:
     defaults:
         _controller: AppBundle\Controller\ProfileController::newRestaurantPromotionAction
         layout: '@App/profile.html.twig'
+        routes:
+            restaurant_promotions: profile_restaurant_promotions
     methods: [ GET, POST ]
 
 profile_delivery:

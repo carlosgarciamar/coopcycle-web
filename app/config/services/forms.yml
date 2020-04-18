@@ -185,4 +185,5 @@ services:
   AppBundle\Form\Sylius\Promotion\OfferDeliveryType:
     arguments:
       $promotionRuleFactory: '@sylius.factory.promotion_rule'
+      $promotionCouponFactory: '@sylius.factory.promotion_coupon'
     tags: [ form.type ]

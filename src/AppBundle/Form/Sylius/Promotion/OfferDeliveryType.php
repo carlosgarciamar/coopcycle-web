@@ -3,8 +3,10 @@
 namespace AppBundle\Form\Sylius\Promotion;
 
 use AppBundle\Entity\LocalBusiness;
+use AppBundle\Sylius\Promotion\Action\DeliveryPercentageDiscountPromotionActionCommand;
 use AppBundle\Sylius\Promotion\Checker\Rule\IsRestaurantRuleChecker;
 use Ramsey\Uuid\Uuid;
+use Sylius\Component\Promotion\Factory\PromotionCouponFactoryInterface;
 use Sylius\Component\Promotion\Model\Promotion;
 use Sylius\Component\Promotion\Model\PromotionAction;
 use Sylius\Component\Resource\Factory\FactoryInterface;
@@ -20,10 +22,14 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class OfferDeliveryType extends AbstractType
 {
     private $promotionRuleFactory;
+    private $promotionCouponFactory;
 
-    public function __construct(FactoryInterface $promotionRuleFactory)
+    public function __construct(
+        FactoryInterface $promotionRuleFactory,
+        PromotionCouponFactoryInterface $promotionCouponFactory)
     {
         $this->promotionRuleFactory = $promotionRuleFactory;
+        $this->promotionCouponFactory = $promotionCouponFactory;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -39,6 +45,11 @@ class OfferDeliveryType extends AbstractType
                 // 'help' => 'form.offer_delivery.name.help'
             ]);
 
+        // private function isUsedCouponCode(string $code): bool
+        // {
+        //     return null !== $this->get('sylius.repository.promotion_coupon')->findOneBy(['code' => $code]);
+        // }
+
         $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) use ($options) {
 
             $form = $event->getForm();
@@ -50,6 +61,13 @@ class OfferDeliveryType extends AbstractType
             $promotion->setCode(Uuid::uuid4()->toString());
             $promotion->setPriority(1);
 
+            $promotionCoupon = $this->promotionCouponFactory->createNew();
+            $promotionCoupon->setCode($couponCode);
+            // TODO Add checkbox
+            $promotionCoupon->setPerCustomerUsageLimit(1);
+
+            $promotion->addCoupon($promotionCoupon);
+
             $isRestaurantRule = $this->promotionRuleFactory->createNew();
             $isRestaurantRule->setType(IsRestaurantRuleChecker::TYPE);
             $isRestaurantRule->setConfiguration([
@@ -58,15 +76,14 @@ class OfferDeliveryType extends AbstractType
 
             $promotion->addRule($isRestaurantRule);
 
-            // $promotionAction = new PromotionAction();
-            // $promotionAction->setType(FixedDiscountPromotionActionCommand::TYPE);
-            // $promotionAction->setConfiguration([
-            //     'amount' => $data['amount']
-            // ]);
+            $promotionAction = new PromotionAction();
+            $promotionAction->setType(DeliveryPercentageDiscountPromotionActionCommand::TYPE);
+            $promotionAction->setConfiguration([
+                'percentage' => 1.0,
+                'decrase_platform_fee' => false,
+            ]);
 
-            // $promotion->addAction($promotionAction);
-
-            exit;
+            $promotion->addAction($promotionAction);
         });
     }
 

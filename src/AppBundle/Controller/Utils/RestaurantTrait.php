@@ -1056,27 +1056,10 @@ trait RestaurantTrait
 
         $this->accessControl($restaurant);
 
-        // $form = $this->createForm(DepositRefundSettingsType::class, $restaurant);
-
-        // $form->handleRequest($request);
-        // if ($form->isSubmitted() && $form->isValid()) {
-
-        //     $this->getDoctrine()->getManagerForClass(LocalBusiness::class)->flush();
-
-        //     $this->addFlash(
-        //         'notice',
-        //         $this->get('translator')->trans('global.changesSaved')
-        //     );
-
-        //     $routes = $this->getRestaurantRoutes();
-
-        //     return $this->redirectToRoute($routes['deposit_refund'], ['id' => $id]);
-        // }
-
         return $this->render('@App/restaurant/promotions.html.twig', $this->withRoutes([
             'layout' => $request->attributes->get('layout'),
             'restaurant' => $restaurant,
-            // 'form' => $form->createView(),
+            'promotions' => $restaurant->getPromotions(),
         ]));
     }
 
@@ -1099,26 +1082,23 @@ trait RestaurantTrait
             $form->handleRequest($request);
             if ($form->isSubmitted() && $form->isValid()) {
 
-                // $couponCode = $form->get('couponCode')->getData();
-                // $name = $form->get('name')->getData();
+                $promotion = $form->getData();
 
-                // var_dump($couponCode);
+                $restaurant->addPromotion($promotion);
 
+                $this->getDoctrine()->getManagerForClass(LocalBusiness::class)->flush();
 
-                exit;
-
-                // $this->getDoctrine()->getManagerForClass(LocalBusiness::class)->flush();
+                // $this->get('sylius.repository.promotion')->add($promotion);
 
                 // $this->addFlash(
                 //     'notice',
                 //     $this->get('translator')->trans('global.changesSaved')
                 // );
 
-                // $routes = $this->getRestaurantRoutes();
+                $routes = $this->getRestaurantRoutes();
 
-                // return $this->redirectToRoute($routes['deposit_refund'], ['id' => $id]);
+                return $this->redirectToRoute($routes['promotions'], ['id' => $id]);
             }
-
         }
 
         return $this->render('@App/restaurant/promotion.html.twig', $this->withRoutes([
