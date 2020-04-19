@@ -66,6 +66,7 @@ class ProfileController extends Controller
             'stats' => 'profile_restaurant_stats',
             'deposit_refund' => 'profile_restaurant_deposit_refund',
             'promotions' => 'profile_restaurant_promotions',
+            'promotion_new' => 'profile_restaurant_new_promotion',
         ];
     }
 
